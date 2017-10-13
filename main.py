@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template
+from flask import Flask, request, redirect, render_template, sessions, flash
 from flask_sqlalchemy import SQLAlchemy
 import os
 import jinja2
@@ -16,60 +16,52 @@ class Blog(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(120))
-    body = db.Column(db.String(250))
-
-    def __init__(self, title, body):
+    new_blog = db.Column(db.String(750))
+    completed = db.Column(db.Boolean)
+    
+    def __init__(self, title, new_post):
         self.title = title
-        self.body = body
-        self.completed = True
+        self.new_blog = new_blog
+        self.completed = False
 
 @app.route('/')
 def index():
-    title= ""
-    title_err= ""
-    body= ""
-    body_err= ""
-    
-   #template = jinja_env.get_template('add-post.html')
-    return render_template('add-post.html', title=title, body=body, title_err=title_err, body_err=body_err)
+    blogs = Blog.query.all()
+    #template = jinja_env.get_template('add-post.html')
+    return render_template('blog-listings.html', blogs=blogs) #title=title, new_blog=new_blog, title_err=title_err, new_blog_err=new_blog-Err)
 
-@app.route('/newpost', methods=['POST'])
-def add_post():
-    title = request.form['title']
-    body = request.form['body']
-
-    title_err = ''
-    body_err = ''
-
-    if title == " ":
-        title_err = 'title of blog required'
-
-    if body == " ":
-        body_err = 'body of blog required'
-        
-    if not title_err or body_err:
-        return redirect('/blog')
-        
-    else:  
-        #template = jinja_env.get_template('add-post.html')
-        return render_template('add-post.html', title=title, body=body, title_err=title_err, body_err=body_err)
-    
-
-@app.route('/blog', methods=['POST', 'GET'])
-def blog_listings():
+@app.route('/newpost', methods=['POST', 'GET'])
+def newpost():
+    title_err = ""
+    new_blog_err = "" 
 
     if request.method == 'POST':
-        title_name = request.form['title']
-        body_name = request.form['body']
-        new_title = title(title_name)
-        new_blog = body(body_name)
-        db.session.add(new_blog)
-        db.session.commit()
-    
-    title = title.query.filter_by(completed=False).all()
-    new_title = title.query.filter_by(completed=True).all()
-    new_blog = blog.query.filter_by(completed=True).all()
-    return render_template('blog-listings.html', title=title, new_title=new_title, new_blog=new_blog)
+        title = request.form['title']
+        new_blog = request.form['new_blog']    
+        
+        if title == "" or new_blog == "":
+            title_err = "Please eneter a valid title"
+            new_blog_err = "Please enter a valid blog entry"
+            return render_template('/newpost', title_err=title_err, new_blog_err=new_blog_err) 
+        else:
+            blog = Blog(title, new_blog)
+            db.session.add(blog)
+            db.session.commit()
+            return redirect('/blog?id=' + str(blog.id))     
+
+    return render_template('add-post.html')       
+
+@app.route('/blog', methods=['GET'])
+def blog_listings():
+
+    if request.args:
+        id = request.args.get("id")
+        blog = Blog.query.get(id)
+        return render_template('blog-post.html', blog=blog)
+    else:
+        blogs = Blog.query.all()
+        
+        return render_template('blog-listings.html', blogs=blogs)
 
 if __name__ == '__main__':
     app.run()
