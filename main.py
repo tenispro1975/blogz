@@ -19,7 +19,7 @@ class Blog(db.Model):
     new_blog = db.Column(db.String(750))
     completed = db.Column(db.Boolean)
     
-    def __init__(self, title, new_post):
+    def __init__(self, title, new_blog):
         self.title = title
         self.new_blog = new_blog
         self.completed = False
@@ -27,7 +27,6 @@ class Blog(db.Model):
 @app.route('/')
 def index():
     blogs = Blog.query.all()
-    #template = jinja_env.get_template('add-post.html')
     return render_template('blog-listings.html', blogs=blogs) #title=title, new_blog=new_blog, title_err=title_err, new_blog_err=new_blog-Err)
 
 @app.route('/newpost', methods=['POST', 'GET'])
@@ -40,24 +39,24 @@ def newpost():
         new_blog = request.form['new_blog']    
         
         if title == "" or new_blog == "":
-            title_err = "Please eneter a valid title"
+            title_err = "Please enter a valid title"
             new_blog_err = "Please enter a valid blog entry"
-            return render_template('/newpost', title_err=title_err, new_blog_err=new_blog_err) 
+            return render_template('new_post.html', title_err=title_err, new_blog_err=new_blog_err) 
         else:
             blog = Blog(title, new_blog)
             db.session.add(blog)
             db.session.commit()
             return redirect('/blog?id=' + str(blog.id))     
 
-    return render_template('add-post.html')       
+    return render_template('new_post.html')       
 
 @app.route('/blog', methods=['GET'])
-def blog_listings():
+def blog():
 
     if request.args:
         id = request.args.get("id")
         blog = Blog.query.get(id)
-        return render_template('blog-post.html', blog=blog)
+        return render_template('blog_post.html', title="Build a Blog", blog=blog)
     else:
         blogs = Blog.query.all()
         

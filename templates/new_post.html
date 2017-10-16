@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+<!DOCTYPE html>
+<html>
+    <head>
+    <style>.error{color: #FF0000;}</style>
+    </head>  
+        <body>
+{% block content %}
+            <h2><center>Add a Blog Entry</center></h2>
+            <form action='/newpost', method="post">
+                <table>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <label for="title"><b>Title for your new blog:<b></label>
+                                <br/>
+                                <input row="5" id="title" name="title" type="text" value="{{title}}"/><p class="error">{{title_err}}</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="new_blog"><b>Your new blog:<b></label>
+                                <br/>
+                                <textarea id="new_blog" name="new_blog" style="height:100px"></textarea><p class="error">{{new_blog_err}}</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            <input type="submit" value='Add Entry'/>
+        </form>
+{% endblock %}
+    </body>
+</html>   
