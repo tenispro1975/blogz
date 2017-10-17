@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1><center>Your Blog Posts</center></h1>
+    <h1><center><b>Your Blog Posts</b></center></h1>
             <ul>
                 {% for blog in blogs %}
                     <a href=/blog?id={{blog.id}}><h2>{{blog.title}}</h2></a>
