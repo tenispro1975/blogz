@@ -8,7 +8,7 @@ jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), a
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://build_a_blog:tenispro@localhost:8889/build_a_blog'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blogz:ctown1975@localhost:8889/blogz'
 app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
 
@@ -17,12 +17,22 @@ class Blog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(120))
     new_blog = db.Column(db.String(750))
-    completed = db.Column(db.Boolean)
+    owner_id =db.Column(db.Integer, db.ForeignKey('user.id'))
     
     def __init__(self, title, new_blog):
         self.title = title
         self.new_blog = new_blog
-        self.completed = False
+        self.owner = owner
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(100))
+    password = db.Column(db.String(25))
+    blogs = db.relationship('Blog', backref='owner')
+    
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
 
 @app.route('/')
 def index():
@@ -37,6 +47,7 @@ def newpost():
     if request.method == 'POST':
         title = request.form['title']
         new_blog = request.form['new_blog']    
+        user = User.query.filter_by(username=username).first()
         
         if title == "" or new_blog == "":
             title_err = "Please enter a valid title"
@@ -62,5 +73,59 @@ def blog():
         
         return render_template('blog-listings.html', blogs=blogs)
 
+@app.route('/login', methods=['POST', 'GET'])
+def login():
+    
+    username_err = ''
+    password_err = ''
+    verify_err = ''
+     
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        user = User.query.filter_by(username=username).first()
+        if user and user.password == password:
+            session['username'] = username
+            flash("Logged in")
+            return redirect('/newpost')
+        else:
+            flash('User password incorrect, or user does not exist', 'error')
+    return render_template('login.html')
+
+@app.route('/signup', methods=['POST', 'GET'])
+def signup():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        verify = request.form['verify']
+        
+        if len(username) < 3 or ' ' in username:
+            username_err = 'Username not valid'
+            username = ''
+        
+        if len(password) < 3 or " " in password:
+            password_err = 'Password not valid'
+            password = ''
+
+        if not verify == password:
+            verify_err = 'Password does not match'
+            verify = ''   
+
+        if not username_err and not password_err and not verify_err:
+            return render_template('newpost.html', username=username)   
+        
+        existing_user = User.query.filter_by(username=username).first()
+        if not existing_user:
+            new_user = User(username, password)
+            db.session.add(new_user)
+            db.session.commit()
+            session['username'] = username
+            return redirect('/newpost')
+        else:
+            return "<h1>Duplicate user</h1>"
+    #return render_template('blog-listings.html', blogs=blogs)
+
 if __name__ == '__main__':
     app.run()
+
+ 
