@@ -2,12 +2,30 @@
 <html>
     <head>
         <nav>
+            <a href='/'><b>Home</b></a>
             <a href='/blog'><b>Main Blog Page</b></a>
             <a href='/newpost'><b>Add a Blog Entry</b></a>
         </nav>
     </head>
 <body>
-
+    <br>
+    <style>
+        br {float: right}
+    </style>
+        <div>
+            <a href='/logout'>log out</a>
+            <a href='/login'>log in</a>
+        </div>
+    
+    {% with messages = get_flashed_messages(with_categories=True) %}
+        <ul>
+        {% for category,message in messages %}
+            <li class="{{category}}">{{message}}</li>
+        {% endfor %}
+        </ul>
+{% endwith %}
+   
+    
     {% block content %}
     {% endblock %}
 
