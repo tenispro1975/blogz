@@ -20,7 +20,7 @@ class Blog(db.Model):
     new_blog = db.Column(db.String(750))
     owner_id =db.Column(db.Integer, db.ForeignKey('user.id'))
     
-    def __init__(self, title, new_blog):
+    def __init__(self, title, new_blog, owner):
         self.title = title
         self.new_blog = new_blog
         self.owner = owner
@@ -37,7 +37,7 @@ class User(db.Model):
 
 @app.before_request
 def require_login():
-    allowed_routes = ['login', 'signup']
+    allowed_routes = ['login', 'signup', 'blog']
     if request.endpoint not in allowed_routes and 'username' not in session:
         return redirect('/login')
    
@@ -54,15 +54,16 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        user = User.query.filter_by(username=username).first()
+        owner = User.query.filter_by(username=username).first()
         
-        if user and user.password == password:
+        if username and owner.password == password:
             session['username'] = username
             session['password'] = password
             flash("Logged in")
-            return redirect('/newpost')
+            return redirect('/blog')
         else:
             flash('User password incorrect, or user does not exist', 'error')
+    
     return render_template('login.html')
 
 @app.route('/newpost', methods=['POST', 'GET'])
@@ -73,14 +74,15 @@ def newpost():
     if request.method == 'POST':
         title = request.form['title']
         new_blog = request.form['new_blog']    
-       # owner = User.query.filter_by(user=user).first()
+        username = session['username']
+        owner = User.query.filter_by(username=username).first()
         
         if title == "" or new_blog == "":
             title_err = "Please enter a valid title"
             new_blog_err = "Please enter a valid blog entry"
             return render_template('new_post.html', title_err=title_err, new_blog_err=new_blog_err) 
         else:
-            blog = Blog(title, new_blog)
+            blog = Blog(title, new_blog, owner)
             db.session.add(blog)
             db.session.commit()
             return redirect('/blog?id=' + str(blog.id))     
@@ -140,8 +142,13 @@ def logout():
 
 @app.route('/')
 def index():
+    
+    
+    
+    
+    
     blogs = Blog.query.all()
-    return render_template('blog-listings.html')
+    return render_template('index.html')
 
 if __name__ == '__main__':
     app.run()
