@@ -94,8 +94,8 @@ def blog():
 
     if request.args:
         id = request.args.get("id")
-        blog = Blog.query.get(id)
-        return render_template('blog_post.html', title="Build a Blog", blog=blog)
+        #username = user.query.get(id)
+        return render_template('user.html', title="Build a Blog")
     else:
         blogs = Blog.query.all()
         
@@ -140,16 +140,13 @@ def logout():
     del session['username']
     return redirect('/blog')
 
-@app.route('/')
-def index():
+@app.route('/', methods=['GET'])
+def index():   
+   
+    users = User.query.all()
     
-    
-    
-    
-    
-    blogs = Blog.query.all()
-    return render_template('index.html')
-
+    return render_template('index.html', title="Blogz", users=users)
+      
 if __name__ == '__main__':
     app.run()
 
