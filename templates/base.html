@@ -2,14 +2,13 @@
 <html>
     <head>
         <style>
-         ul {
+            body {
             font-family: Courier;
-            margin: center;
-            font-size: 100%;
-
-        }
+            margin-left: 280px;
+            font-size: 150%;
+            
+            }
         </style>
-    
     </head>
         <body>
             <nav>
@@ -17,12 +16,12 @@
                     <a href='/'><b>Home</b></a>
                     <a href='/blog'><b>All Posts</b></a>
                     <a href='/newpost'><b>New Post</b></a>
-                    <a href='/logout'>log out</a>
-                    <a href='/login'>log in</a>
+                    <a href='/login'style="padding-left: 300px">login</a> | <a href='/logout'>log out</a>
                 </ul>
             </nav>
-    
-        
+                <div>
+                
+                </div>
     {% with messages = get_flashed_messages(with_categories=True) %}
         <ul>
         {% for category,message in messages %}

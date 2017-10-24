@@ -8,27 +8,27 @@
     </head>  
         <body>
 {% block content %}
-            <h1><center><b>New Post<b></center></h1>
+            <h1><b>New Post<b></h1>
             <form action='/newpost', method="post">
                 <table>
                     <tbody>
                         <tr>
                             <td>
-                                <label for="title"><b>Title for your new blog:<b></label>
+                                <label for="title"><b>Blog Title<b></label>
                                 <br/>
-                                <input row="5" id="title" name="title" type="text" value="{{title}}"/><p class="error">{{title_err}}</p>
+                                <input row="5" border-width="3px" id="title" name="title" type="text" value="{{title}}"/><p class="error">{{title_err}}</p>
                             </td>
                         </tr>
                         <tr>
                             <td>
-                                <label for="new_blog"><b>Your new blog:<b></label>
+                                <label for="new_blog"><b>Post<b></label>
                                 <br/>
                                 <textarea id="new_blog" name="new_blog" style="height:100px"></textarea><p class="error">{{new_blog_err}}</p>
                             </td>
                         </tr>
                     </tbody>
                 </table>
-            <input type="submit" value='Add Entry'/>
+            <input type="submit" value='Submit Blog'/>
         </form>
 {% endblock %}
     </body>

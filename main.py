@@ -92,14 +92,20 @@ def newpost():
 @app.route('/blog', methods=['GET'])
 def blog():
 
-    if request.args:
-        id = request.args.get("id")
-        #username = user.query.get(id)
-        return render_template('user.html', title="Build a Blog")
-    else:
-        blogs = Blog.query.all()
-        
-        return render_template('blog-listings.html', blogs=blogs)
+    user_id = request.arg.get('userid')
+    blog_id = request.arg.get('id')
+    blogs = Blog.query.all()
+    
+    if blog_id:
+        blog = blog.query.filter_by(id=blog_id).first()
+        return render_template('user.html')
+    if user_id:
+        owner_id = user_id
+        post = blog.query.filter_by(owner_id=user_id).all()
+        return render_template('blog_post.html', post=posts)
+    
+
+    return render_template('blog-listings.html', blogs=blogs)
 
 @app.route('/signup', methods=['POST', 'GET'])
 def signup():
