@@ -3,9 +3,9 @@
     <h1>Blog Posts!!</h1>
     <ul>
         {% for user in users %}
-            <a href="/blog?user={{user_id}}"><h2>{{blog.title}}</h2></a>
+            <a href="/blog?id={{blog_id}}"><h2>{{blog.title}}</h2></a>
             <li>{{}}</li>
-            <li"Written By">{{user_id}}</li>
+            <li"Written By"></li>
         {% endfor %}
     </ul>
 {% endblock %}

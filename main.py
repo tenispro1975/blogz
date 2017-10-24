@@ -92,8 +92,8 @@ def newpost():
 @app.route('/blog', methods=['GET'])
 def blog():
 
-    user_id = request.arg.get('userid')
-    blog_id = request.arg.get('id')
+    user_id = request.args.get('userid')
+    blog_id = request.args.get('id')
     blogs = Blog.query.all()
     
     if blog_id:
@@ -109,10 +109,14 @@ def blog():
 
 @app.route('/signup', methods=['POST', 'GET'])
 def signup():
+
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
         verify = request.form['verify']
+        username_err = ''   
+        password_err = ''
+        verify_err = ''
         
         if len(username) < 3 or ' ' in username:
             username_err = 'Username not valid'
@@ -127,7 +131,7 @@ def signup():
             verify = ''   
 
         if not username_err and not password_err and not verify_err:
-            return render_template('newpost.html', username=username)   
+            return render_template('new_post.html', username=username)   
         
         existing_user = User.query.filter_by(username=username).first()
         
