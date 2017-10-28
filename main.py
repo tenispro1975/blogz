@@ -37,7 +37,7 @@ class User(db.Model):
 
 @app.before_request
 def require_login():
-    allowed_routes = ['login', 'signup', 'blog']
+    allowed_routes = ['index', 'signup', 'blog', 'login']
     if request.endpoint not in allowed_routes and 'username' not in session:
         return redirect('/login')
    
@@ -56,7 +56,7 @@ def login():
         password = request.form['password']
         owner = User.query.filter_by(username=username).first()
         
-        if username and owner.password == password:
+        if username == username and password == password:
             session['username'] = username
             session['password'] = password
             flash("Logged in")
@@ -77,8 +77,9 @@ def newpost():
         username = session['username']
         owner = User.query.filter_by(username=username).first()
         
-        if title == "" or new_blog == "":
+        if title == "": 
             title_err = "Please enter a valid title"
+        elif new_blog == "": 
             new_blog_err = "Please enter a valid blog entry"
             return render_template('new_post.html', title_err=title_err, new_blog_err=new_blog_err) 
         else:
@@ -91,21 +92,23 @@ def newpost():
 
 @app.route('/blog', methods=['GET'])
 def blog():
-
-    user_id = request.args.get('userid')
+    
+    user_id = request.args.get('user_id')
     blog_id = request.args.get('id')
-    blogs = Blog.query.all()
-    
-    if blog_id:
-        blog = blog.query.filter_by(id=blog_id).first()
-        return render_template('user.html')
-    if user_id:
-        owner_id = user_id
-        post = blog.query.filter_by(owner_id=user_id).all()
-        return render_template('blog_post.html', post=posts)
-    
+    blog = Blog.query.all()
 
-    return render_template('blog-listings.html', blogs=blogs)
+    if blog_id:
+        
+        blog = Blog.query.get(blog_id)
+        return render_template('blog_post.html', blog=blog)
+    elif user_id:
+        user = User.query.get(user_id)
+        blogs = Blog.query.filter_by(owner=user).all()
+        return render_template('user.html', blogs=blogs)
+    
+    else:
+        blogs = Blog.query.all()
+        return render_template('blog-listings.html', blogs=blogs)
 
 @app.route('/signup', methods=['POST', 'GET'])
 def signup():
@@ -118,37 +121,41 @@ def signup():
         password_err = ''
         verify_err = ''
         
+        existing_user = User.query.filter_by(username=username).first()
+
         if len(username) < 3 or ' ' in username:
             username_err = 'Username not valid'
-            username = ''
+            #username = ''
         
         if len(password) < 3 or " " in password:
             password_err = 'Password not valid'
-            password = ''
+            #password = ''
 
         if not verify == password:
             verify_err = 'Password does not match'
             verify = ''   
 
-        if not username_err and not password_err and not verify_err:
-            return render_template('new_post.html', username=username)   
+        if username_err or password_err or verify_err:
+            return render_template('signup.html', username_err=username_err, password_err=password_err, verify_err=verify_err)   
         
         existing_user = User.query.filter_by(username=username).first()
-        
-        if not existing_user:
+        if existing_user:
+            username_err = 'Username already exists'
+            return render_template('signup.html', username_err=username_err, password_err=password_err, verify_err=verify_err)
+            
+        else:  
             new_user = User(username, password)
             db.session.add(new_user)
             db.session.commit()
             session['username'] = username
-            return redirect('/newpost')
-        else:
-            return "<h1>Duplicate user</h1>"
+        return redirect('/newpost')
+        
     return render_template('signup.html')
 
 @app.route('/logout')
 def logout():
     del session['username']
-    return redirect('/blog')
+    return redirect('/')
 
 @app.route('/', methods=['GET'])
 def index():   
